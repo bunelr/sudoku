@@ -45,8 +45,8 @@ class Sudoku:
             human_sudoku=human_sudoku + (i+1) * sudoku[...,i]
         return str(human_sudoku)
         
-    @staticmethod
-    def count_constraint_violation(sudoku):
+    def count_constraint_violation(self):
+        sudoku = self.sudoku_grid
         nb_constraint = 0
         obj = np.ones((1,SIZE))
 
@@ -79,7 +79,6 @@ class Sudoku:
         for value, pos_index in zip(self.dispos, state):
             row, col = self.empty_cases[pos_index]
             grid[row, col, value-1] = 1
-        return grid
 
 def load_sudokus_from_file(path_to_file):
     with open(path_to_file, 'r') as sudoku_file:
@@ -91,6 +90,3 @@ def load_sudokus_from_file(path_to_file):
         sudokus.append(Sudoku(sudoku_txt))
 
     return sudokus
-
-sudokus = load_sudokus_from_file('easy50.txt')
-sudo = sudokus[0]

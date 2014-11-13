@@ -34,9 +34,8 @@ class Sudoku:
     def __repr__(self):
         return Sudoku.visualise_sudoku(self.sudoku_grid_empty)
 
-    @staticmethod
-    def show_filled(sudoku):
-        print Sudoku.visualise_sudoku(sudoku)
+    def show_filled(self):
+        print Sudoku.visualise_sudoku(self.sudoku_grid)
 
     @staticmethod
     def visualise_sudoku(sudoku):
@@ -75,10 +74,10 @@ class Sudoku:
     def fill_in_state(self, state):
         assert len(state) == len(self.dispos), "%s state != %s dispos" % (len(state),len(self.dispos))
 
-        grid = self.sudoku_grid
+        self.sudoku_grid = np.copy(self.sudoku_grid_empty)
         for value, pos_index in zip(self.dispos, state):
             row, col = self.empty_cases[pos_index]
-            grid[row, col, value-1] = 1
+            self.sudoku_grid[row, col, value-1] = 1
 
 def load_sudokus_from_file(path_to_file):
     with open(path_to_file, 'r') as sudoku_file:

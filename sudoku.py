@@ -47,13 +47,13 @@ class Sudoku:
         for i in range(SIZE):
             # np.sum(sudo[i,...], axis=0) gives us an array of the number of times
             # a number is represented in the row i
-            nb_constraint += np.sum(np.sum(sudo[i,...], axis=0)!=obj)
+            nb_constraint += np.sum(np.sum(sudoku[i,...], axis=0)!=obj)
 
         # Columns constraint
         for j in range(SIZE):
             # np.sum(sudo[...,j,...], axis=0) gives us an array of the number of times
             # a number is represented in the column j         
-            nb_constraint += np.sum(np.sum(sudo[...,j,...], axis=0)!=obj)
+            nb_constraint += np.sum(np.sum(sudoku[...,j,...], axis=0)!=obj)
 
         # Box constraint
         for k in range(SIZE):
@@ -61,7 +61,7 @@ class Sudoku:
             b = k - a * SMALL
             # np.sum(sudo[a:a+3,b:b+3...], axis=(0,1)) gives us an array of the number 
             # of times a number is represented in the box of index a,b
-            nb_constraint += np.sum(np.sum(sudo[a:a+3,b:b+3,...], axis=(0,1)) != obj)
+            nb_constraint += np.sum(np.sum(sudoku[a:a+3,b:b+3,...], axis=(0,1)) != obj)
 
         return nb_constraint
     

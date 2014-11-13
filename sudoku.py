@@ -24,12 +24,19 @@ class Sudoku:
         for i,count in enumerate(missing_values):
             dispos.extend([i+1 for _ in range(count)])
         
+        assert len(dispos) == len(empty_cases)
+
         self.dispos = dispos
+        self.sudoku_grid_empty = np.copy(sudoku_grid)
         self.sudoku_grid = sudoku_grid
         self.empty_cases = empty_cases
         
     def __repr__(self):
-        return Sudoku.visualise_sudoku(self.sudoku_grid)
+        return Sudoku.visualise_sudoku(self.sudoku_grid_empty)
+
+    @staticmethod
+    def show_filled(sudoku):
+        print Sudoku.visualise_sudoku(sudoku)
 
     @staticmethod
     def visualise_sudoku(sudoku):
@@ -65,6 +72,14 @@ class Sudoku:
 
         return nb_constraint
     
+    def fill_in_state(self, state):
+        assert len(state) == len(self.dispos), "%s state != %s dispos" % (len(state),len(self.dispos))
+
+        grid = self.sudoku_grid
+        for value, pos_index in zip(self.dispos, state):
+            row, col = self.empty_cases[pos_index]
+            grid[row, col, value-1] = 1
+        return grid
 
 def load_sudokus_from_file(path_to_file):
     with open(path_to_file, 'r') as sudoku_file:

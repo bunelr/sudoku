@@ -12,24 +12,30 @@ class Sudoku:
         lines = sudoku_txt.split()
         missing_values = [SIZE for _ in range(SIZE)]
 
+        available_for_line = []
+
         for i, line in enumerate(lines):
+            line_possibility = set(range(1,SIZE+1))
             for j, char in enumerate(line):
                 if char!='0':
+                    line_possibility.discard(int(char))
                     idx_char = int(char)-1
                     sudoku_grid[i,j,idx_char]  = 1
                     missing_values[idx_char] -= 1
                 else:
                     empty_cases.append((i,j))
+            available_for_line.append(line_possibility)
         dispos = []
         for i,count in enumerate(missing_values):
             dispos.extend([i+1 for _ in range(count)])
         
         assert len(dispos) == len(empty_cases)
-
+        self.size = SIZE
         self.dispos = dispos
         self.sudoku_grid_empty = np.copy(sudoku_grid)
         self.sudoku_grid = sudoku_grid
         self.empty_cases = empty_cases
+        self.available_for_line = available_for_line
         
     def __repr__(self):
         return Sudoku.visualise_sudoku(self.sudoku_grid_empty)
@@ -75,8 +81,8 @@ class Sudoku:
         assert len(state) == len(self.dispos), "%s state != %s dispos" % (len(state),len(self.dispos))
 
         self.sudoku_grid = np.copy(self.sudoku_grid_empty)
-        for value, pos_index in zip(self.dispos, state):
-            row, col = self.empty_cases[pos_index]
+        for value, pos in zip(state, self.empty_cases):
+            row, col = pos
             self.sudoku_grid[row, col, value-1] = 1
 
 def load_sudokus_from_file(path_to_file):

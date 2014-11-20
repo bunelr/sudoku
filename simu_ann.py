@@ -1,58 +1,64 @@
 from sudoku import Sudoku, load_sudokus_from_file
 import random
 import math
+import pdb
 
 sudokus = load_sudokus_from_file('easy50.txt')
-
-MAX_ITERATION = 50000
+sudo = sudokus[0]
 
 def solve_sudoku(sudoku):
-    # Parameters of the problem
-    state_len = len(sudoku.dispos)
-    
     # Generate initial state
-    solution = range(state_len)
+    solution = [elt  for line in sudoku.available_for_line for elt in line]
     sudoku.fill_in_state(solution)
     energy = sudoku.count_constraint_violation()
     
     best_solution = solution[:]
     best_energy = energy
     temperature = 1
+    i =0
+    try:
+        while True:
+            i = i+1
+            new_sol = get_new_solution(solution, sudoku)
 
-    for i in range(MAX_ITERATION):
-        new_sol = get_new_solution(solution)
+            sudoku.fill_in_state(new_sol)
+            new_energy = sudoku.count_constraint_violation()
 
-        sudoku.fill_in_state(new_sol)
-        new_energy = sudoku.count_constraint_violation()
-
-        if should_do_transition(energy, new_energy, i):
-            energy = new_energy
-            solution = new_sol
+            if should_do_transition(energy, new_energy, temperature):
+                energy = new_energy
+                solution = new_sol
         
-        if energy < best_energy:
-            best_energy = energy
-            best_solution = solution[:]
+                if energy < best_energy:
+                    best_energy = energy
+                    best_solution = solution[:]
         
-        if best_energy == 0:
-            break
-        if i % 100==0:
-            print i, temperature, best_energy
+            if best_energy == 0:
+                break
+            if i % 1000==0:
+                print i, temperature, best_energy
 
-        temperature = temperature * 0.9999
+            temperature = temperature * 0.99999
+    except KeyboardInterrupt:
+        pass
+
     sudoku.fill_in_state(best_solution)
+
     sudoku.show_filled()
 
-def get_new_solution(solution):
+def get_new_solution(solution, sudoku):
     '''
     Randomly permut two elements of the solution
     This way, the two configuration should be close in terms of energy
     '''
-    idx_range = len(solution)
+    line = random.randint(0,sudoku.size-1)
 
-    a = random.randint(0, idx_range -1)
-    b = random.randint(0, idx_range -1)
+    cases = [idx  for (idx, case) in enumerate(sudoku.empty_cases) if case[0]==line]
 
-    solution[a], solution[b] = solution[b], solution[a]
+    a = random.randint(0, len(cases) -1)
+    b = random.randint(0, len(cases) -1)
+
+    solution[cases[a]], solution[cases[b]] = solution[cases[b]], solution[cases[a]]
+
     return solution
 
 def should_do_transition(energy, new_energy, temperature):
@@ -63,3 +69,6 @@ def should_do_transition(energy, new_energy, temperature):
         return True
     else:
         return False
+
+
+solve_sudoku(sudo)

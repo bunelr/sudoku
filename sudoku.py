@@ -38,9 +38,10 @@ class Sudoku:
         self.sudoku_grid = sudoku_grid
 
         # Get numbers of constraint by elements
-        self.constraints_violation = self.count_constraint_violation(self.sudoku_grid)
+        self.constraints_violation, _ = self.count_constraint_violation(self.sudoku_grid)
 
-
+    def get_cost(self):
+        return np.ma.masked_invalid(self.constraints_violation).sum()
 
     def __repr__(self):
         return str(self.sudoku_grid_empty)
@@ -49,36 +50,45 @@ class Sudoku:
         print self.sudoku_grid
 
     def count_constraint_violation(self, solution):
-        constraints_violation = np.zeros((len(self.empty_cases),1))
+        constraints_violation =-np.inf * np.ones((self.size,self.size))
 
-        for k, (i, j)  in enumerate(self.empty_cases):
+        for i, j  in self.empty_cases:
             a = SMALL* (i / SMALL)
             b = SMALL* (j / SMALL)
             value = solution[i,j]
-            constraints_violation[k] = np.sum(solution[i,:]==value) + \
+            constraints_violation[i,j] = np.sum(solution[i,:]==value) + \
                                        np.sum(solution[:,j]==value) + \
                                        np.sum(solution[a:a+3,b:b+3]==value) - 3
             # The -3 is there because there should be a value everytime
             # -> the one we're considering
+        cost = np.ma.masked_invalid(constraints_violation).sum()
 
-
-        return constraints_violation
+        return constraints_violation, cost
 
     def get_new_solution(self):
         solution = np.copy(self.sudoku_grid)
-        probabilities = np.exp(self.constraints_violation).cumsum()
+        probabilities = np.exp(self.constraints_violation).cumsum(axis=1)
 
-        mult = probabilities[-1]
-        pos1 = probabilities.searchsorted(mult*random.random())
-        pos2 = probabilities.searchsorted(mult*random.random())
+        line = discrete_sample(probabilities[:,-1].cumsum())
 
-        idx1 = self.empty_cases[pos1]
-        idx2 = self.empty_cases[pos2]
+
+        col1 = discrete_sample(probabilities[line,:])
+        col2 = discrete_sample(probabilities[line,:])
+
+        idx1 = (line, col1)
+        idx2 = (line, col2)
 
         solution[idx1], solution[idx2] = solution[idx2], solution[idx1]
 
         return solution, self.count_constraint_violation(solution)
 
+
+def discrete_sample(cum):
+    '''
+    Return an index corresponding to a sample of the distribution defined by the
+    unnormalized distribution function in cum
+    '''
+    return cum.searchsorted(cum[-1]*random.random())
 
 def load_sudokus_from_file(path_to_file):
     with open(path_to_file, 'r') as sudoku_file:

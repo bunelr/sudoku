@@ -8,7 +8,7 @@ sudo = sudokus[1]
 
 def solve_sudoku(sudoku):
     # Generate initial state
-    energy = sudoku.constraints_violation.sum()
+    energy = sudoku.get_cost()
     best_energy = energy
     best_solution = sudoku.sudoku_grid.copy()
 
@@ -17,8 +17,7 @@ def solve_sudoku(sudoku):
     try:
         while True:
             i = i+1
-            new_solution, constraints_violation = sudoku.get_new_solution()
-            new_energy = constraints_violation.sum()
+            new_solution, (constraints_violation, new_energy) = sudoku.get_new_solution()
 
             if should_do_transition(energy, new_energy, temperature):
                 energy = new_energy

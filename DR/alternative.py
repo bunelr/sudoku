@@ -34,10 +34,10 @@ def cube_proj(sudo):
         for b in range(3):
 
             for k in range(9):
-                temp = newsudo[a:a+3,b:b+3,k].ravel()
+                temp = newsudo[3*a:3*(a+1),3*b:3*(b+1),k].ravel()
                 temp = unit_proj(temp)
                 temp = temp.reshape((3,3))
-                newsudo[a:a+3,b:b+3,k] = temp
+                newsudo[3*a:3*(a+1),3*b:3*(b+1),k] = temp
     return newsudo
 
 def given_proj(sudo, given):
@@ -67,23 +67,19 @@ def diag_proj(sudo1, sudo2, sudo3, sudo4):
 
 def col_cube(sudo1, sudo2, sudo3, sudo4):
     PD = diag_proj(sudo1,sudo2,sudo3,sudo4)
-    r_delta = 2 * PD - sudo1
-    return (2*column_proj(r_delta) - r_delta + sudo1)/2
+    return column_proj(2*PD - sudo1) + sudo1 - PD;
 
 def row_cube(sudo1,sudo2,sudo3,sudo4):
     PD = diag_proj(sudo1,sudo2,sudo3,sudo4)
-    r_delta = 2 * PD - sudo2
-    return (2*row_proj(r_delta) -r_delta + sudo2)/2
+    return row_proj(2*PD-sudo2) + sudo2 - PD;
 
 def cube_cube(sudo1, sudo2,sudo3, sudo4):
     PD = diag_proj(sudo1,sudo2,sudo3,sudo4)
-    r_delta = 2 * PD - sudo3
-    return (2*cube_proj(r_delta) -r_delta + sudo3)/2
+    return cube_proj(2*PD-sudo3) + sudo3 - PD;
 
 def given_cube(sudo1, sudo2, sudo3, sudo4, given):
     PD = diag_proj(sudo1,sudo2,sudo3,sudo4)
-    r_delta = 2 * PD - sudo4
-    return (2*given_proj(r_delta,given) -r_delta + sudo4)/2
+    return given_proj(2*PD-sudo4,given) + sudo4 - PD;
 
 def check_sudoku(sudoku, given):
     #Rows
@@ -97,7 +93,7 @@ def check_sudoku(sudoku, given):
     #Cubes
     for a in range(3):
         for b in range(3):
-            cube = sudoku[3*a:3*(a+1),3*b:3*b+3].unravel()
+            cube = sudoku[3*a:3*(a+1),3*b:3*b+3].ravel()
             if len(np.unique(cube))!=9:
                 return False
     #Constraints
@@ -128,9 +124,6 @@ def solve_sudoku(given):
     to_comp = represent_cube(sudo)
 
     i = 0
-    print to_comp
-    print
-
     while not check_sudoku(to_comp, given):
         sudo1 = col_cube(sudo1_old, sudo2_old, sudo3_old, sudo4_old)
         sudo2 = row_cube(sudo1_old, sudo2_old, sudo3_old, sudo4_old)
@@ -148,11 +141,8 @@ def solve_sudoku(given):
         i += 1
 
 
-        print to_comp
-        print
+    print to_comp
 
-        if i>10:
-            break
 
 def load_sudokus_from_file(path_to_file):
     with open(path_to_file, 'r') as sudoku_file:

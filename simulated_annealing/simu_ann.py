@@ -4,7 +4,7 @@ import math
 
 
 sudokus = load_sudokus_from_file('easy50.txt')
-sudo = sudokus[1]
+sudo = sudokus[12]
 
 def solve_sudoku(sudoku):
     # Generate initial state
@@ -33,7 +33,7 @@ def solve_sudoku(sudoku):
             if i % 1000==0:
                 print i, temperature, best_energy
 
-            temperature = temperature * 0.99999
+            temperature = temperature * 0.9999
 
     except KeyboardInterrupt:
         pass

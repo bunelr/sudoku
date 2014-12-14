@@ -89,14 +89,3 @@ def discrete_sample(cum):
     unnormalized distribution function in cum
     '''
     return cum.searchsorted(cum[-1]*random.random())
-
-def load_sudokus_from_file(path_to_file):
-    with open(path_to_file, 'r') as sudoku_file:
-        sudokus = sudoku_file.read()
-    sudoku_tab = sudokus.split('========')
-    sudokus = []
-
-    for sudoku_txt in sudoku_tab:
-        sudokus.append(Sudoku(sudoku_txt))
-
-    return sudokus

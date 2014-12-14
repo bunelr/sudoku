@@ -157,19 +157,7 @@ def solve_sudoku(given):
         i += 1
 
 
-    print to_comp
-
-
-def load_sudokus_from_file(path_to_file):
-    with open(path_to_file, 'r') as sudoku_file:
-        sudokus = sudoku_file.read()
-    sudoku_tab = sudokus.split('========')
-    sudokus = []
-
-    for sudoku_txt in sudoku_tab:
-        sudokus.append(sudo_from_text(sudoku_txt))
-
-    return sudokus
+    return to_comp
 
 def sudo_from_text(sudo_txt):
     lines = sudo_txt.split()
@@ -181,7 +169,7 @@ def sudo_from_text(sudo_txt):
                 given[i,j] = int(char)
     return given
 
-sudokus = load_sudokus_from_file('easy50.txt')
-sudok = sudokus[0]
-
-solve_sudoku(sudok)
+def solve_iterative_projection(sudo_txt):
+    given = sudo_from_text(sudo_txt)
+    solution = solve_sudoku(given)
+    print solution

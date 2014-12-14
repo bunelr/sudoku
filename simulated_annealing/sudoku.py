@@ -58,8 +58,8 @@ class Sudoku:
             value = solution[i,j]
             constraints_violation[i,j] = np.sum(solution[i,:]==value) + \
                                        np.sum(solution[:,j]==value) + \
-                                       np.sum(solution[a:a+3,b:b+3]==value) - 3
-            # The -3 is there because there should be a value everytime
+                                       np.sum(solution[a:a+SMALL,b:b+SMALL]==value) - 3
+            # The -3 is there because there should be a value on each constraints
             # -> the one we're considering
         cost = np.ma.masked_invalid(constraints_violation).sum()
 

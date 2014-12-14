@@ -9,8 +9,8 @@ Modeling the 8-queens problem and sudoku using an algorithm
 based on projections onto nonconvex sets
 '''
 
-def make_unit(pos):
-    v = np.zeros((9,))
+def make_unit(pos, size):
+    v = np.zeros((size,))
     pos = round(pos)
     v[pos] = 1
     assert v.sum()==1
@@ -18,52 +18,58 @@ def make_unit(pos):
 
 def unit_proj(arr):
     amax = arr.argmax()
-    unit = make_unit(amax)
+    size = len(arr)
+    unit = make_unit(amax, size)
     return unit
 
 def column_proj(sudo):
     newsudo = sudo.copy()
-    for j in range(9):
-        for k in range(9):
+    size = sudo.shape[0]
+    for j in range(size):
+        for k in range(size):
             newsudo[:,j,k] = unit_proj(sudo[:,j,k])
     return newsudo
 
 def row_proj(sudo):
     newsudo = sudo.copy()
-    for i in range(9):
-        for k in range(9):
+    size = sudo.shape[0]
+    for i in range(size):
+        for k in range(size):
             newsudo[i,:,k] = unit_proj(sudo[i,:,k])
     return newsudo
 
 def cube_proj(sudo):
     newsudo = sudo.copy()
-    for a in range(3):
-        for b in range(3):
-
-            for k in range(9):
-                temp = newsudo[3*a:3*(a+1),3*b:3*(b+1),k].ravel()
+    size = sudo.shape[0]
+    inner_size = int(np.sqrt(size))
+    for a in range(inner_size):
+        for b in range(inner_size):
+            for k in range(size):
+                temp = newsudo[inner_size*a:inner_size*(a+1),inner_size*b:inner_size*(b+1),k].ravel()
                 temp = unit_proj(temp)
-                temp = temp.reshape((3,3))
-                newsudo[3*a:3*(a+1),3*b:3*(b+1),k] = temp
+                temp = temp.reshape((inner_size,inner_size))
+                newsudo[inner_size*a:inner_size*(a+1),inner_size*b:inner_size*(b+1),k] = temp
     return newsudo
 
 def given_proj(sudo, given):
     newsudo = sudo.copy()
-    for i in range(9):
-        for j in range(9):
+    size = sudo.shape[0]
+    for i in range(size):
+        for j in range(size):
             if given[i,j]!=0:
-                newsudo[i,j,:] = make_unit(given[i,j]-1)
+                newsudo[i,j,:] = make_unit(given[i,j]-1, size)
             else:
                 newsudo[i,j,:] = unit_proj(newsudo[i,j,:])
     return newsudo
 
 def represent_cube(sudo):
-    sudoku = np.zeros((9,9))
-    for i in range(9):
-        for j in range(9):
+    size = sudo.shape[0]
+    sudoku = np.zeros((size,size))
+    for i in range(size):
+        for j in range(size):
             sudoku[i,j]=1
             val = sudo[i,j,0]
-            for k in range(1,9):
+            for k in range(1,size):
                 if sudo[i,j,k] > val:
                     val = sudo[i,j,k]
                     sudoku[i,j] = k+1
@@ -89,34 +95,37 @@ def given_cube(sudo1, sudo2, sudo3, sudo4, given):
     return given_proj(2*PD-sudo4,given) + sudo4 - PD;
 
 def check_sudoku(sudoku, given):
+    size = sudoku.shape[0]
+    inner_size = int(np.sqrt(size))
     #Rows
-    for i in range(9):
-        if len(np.unique(sudoku[i,:]))!=9:
+    for i in range(size):
+        if len(np.unique(sudoku[i,:]))!=size:
             return False
     #Cols
-    for j in range(9):
-        if len(np.unique(sudoku[:,j]))!=9:
+    for j in range(size):
+        if len(np.unique(sudoku[:,j]))!=size:
             return False
     #Cubes
-    for a in range(3):
-        for b in range(3):
-            cube = sudoku[3*a:3*(a+1),3*b:3*b+3].ravel()
-            if len(np.unique(cube))!=9:
+    for a in range(inner_size):
+        for b in range(inner_size):
+            cube = sudoku[inner_size*a:inner_size*(a+1),inner_size*b:inner_size*b+inner_size].ravel()
+            if len(np.unique(cube))!=size:
                 return False
     #Constraints
-    for i in range(9):
-        for j in range(9):
+    for i in range(size):
+        for j in range(size):
             if given[i,j]!=0:
                 if sudoku[i,j]!=given[i,j]:
                     return False
     return True
 
 def generate_initial_solution(given):
-    sudo = np.zeros((9,9,9))
-    for i in range(9):
-        for j in range(9):
+    size = given.shape[0]
+    sudo = np.zeros((size,size,size))
+    for i in range(size):
+        for j in range(size):
             if given[i,j]!=0:
-                sudo[i,j,:] = make_unit(given[i,j]-1)
+                sudo[i,j,:] = make_unit(given[i,j]-1, size)
     return sudo
 
 
@@ -163,8 +172,9 @@ def load_sudokus_from_file(path_to_file):
     return sudokus
 
 def sudo_from_text(sudo_txt):
-    given = np.zeros((9,9))
     lines = sudo_txt.split()
+    size = len(lines)
+    given = np.zeros((size,size))
     for i, line in enumerate(lines):
         for j, char in enumerate(line):
             if char!='0':

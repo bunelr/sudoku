@@ -1,6 +1,13 @@
 import numpy as np
 import random
-import pdb
+
+'''
+Implementation of a sudoku solver using Elser's map and iterative projection
+as described in Jason Schaad's paper:
+
+Modeling the 8-queens problem and sudoku using an algorithm
+based on projections onto nonconvex sets
+'''
 
 def make_unit(pos):
     v = np.zeros((9,))

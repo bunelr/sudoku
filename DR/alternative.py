@@ -10,6 +10,10 @@ based on projections onto nonconvex sets
 '''
 
 def make_unit(pos, size):
+    '''
+    Make a Unit vector of size `size` and with a one
+    on the `pos` coordinates
+    '''
     v = np.zeros((size,))
     pos = round(pos)
     v[pos] = 1
@@ -17,12 +21,20 @@ def make_unit(pos, size):
     return v
 
 def unit_proj(arr):
+    '''
+    Project a vector to the closest unit vector of the basis
+    Example: [0.2 0.3 0.6 0.1 0.2] will be projected to
+             [0   0   1   0   0  ]
+    '''
     amax = arr.argmax()
     size = len(arr)
     unit = make_unit(amax, size)
     return unit
 
 def column_proj(sudo):
+    '''
+    Make all the columns vector unit vectors
+    '''
     newsudo = sudo.copy()
     size = sudo.shape[0]
     for j in range(size):
@@ -31,6 +43,9 @@ def column_proj(sudo):
     return newsudo
 
 def row_proj(sudo):
+    '''
+    Make all the rows vectors unit vectors
+    '''
     newsudo = sudo.copy()
     size = sudo.shape[0]
     for i in range(size):
@@ -39,6 +54,10 @@ def row_proj(sudo):
     return newsudo
 
 def cube_proj(sudo):
+    '''
+    Make all the cube vectors (The inner squares unraveled)
+    unit vectors
+    '''
     newsudo = sudo.copy()
     size = sudo.shape[0]
     inner_size = int(np.sqrt(size))
@@ -52,6 +71,12 @@ def cube_proj(sudo):
     return newsudo
 
 def given_proj(sudo, given):
+    '''
+    For all the position (row,col), make the value vector an unit vector
+    (=> enforcing the 1 value per case condition )
+    If the value is known for this point, enforce it, regardless of
+    the current weights
+    '''
     newsudo = sudo.copy()
     size = sudo.shape[0]
     for i in range(size):
@@ -63,6 +88,10 @@ def given_proj(sudo, given):
     return newsudo
 
 def represent_cube(sudo):
+    '''
+    From the (size*size*size) matrix used internallt by the algorithm
+    Extract a (size*size) matrix representing the sudoku's usual form
+    '''
     size = sudo.shape[0]
     sudoku = np.zeros((size,size))
     for i in range(size):
@@ -75,26 +104,11 @@ def represent_cube(sudo):
                     sudoku[i,j] = k+1
     return sudoku
 
-def diag_proj(sudo1, sudo2, sudo3, sudo4):
-    return (sudo1+sudo2+sudo3+sudo4)/4.0
-
-def col_cube(sudo1, sudo2, sudo3, sudo4):
-    PD = diag_proj(sudo1,sudo2,sudo3,sudo4)
-    return column_proj(2*PD - sudo1) + sudo1 - PD;
-
-def row_cube(sudo1,sudo2,sudo3,sudo4):
-    PD = diag_proj(sudo1,sudo2,sudo3,sudo4)
-    return row_proj(2*PD-sudo2) + sudo2 - PD;
-
-def cube_cube(sudo1, sudo2,sudo3, sudo4):
-    PD = diag_proj(sudo1,sudo2,sudo3,sudo4)
-    return cube_proj(2*PD-sudo3) + sudo3 - PD;
-
-def given_cube(sudo1, sudo2, sudo3, sudo4, given):
-    PD = diag_proj(sudo1,sudo2,sudo3,sudo4)
-    return given_proj(2*PD-sudo4,given) + sudo4 - PD;
-
 def check_sudoku(sudoku, given):
+    '''
+    Check if we reached the solution of the problem by
+    validating all the constraints in succession
+    '''
     size = sudoku.shape[0]
     inner_size = int(np.sqrt(size))
     #Rows
@@ -120,6 +134,10 @@ def check_sudoku(sudoku, given):
     return True
 
 def generate_initial_solution(given):
+    '''
+    From the sudoku's usual form (size*size matrix)
+    Generate the one used by the algorithm (size*size*size matrix)
+    '''
     size = given.shape[0]
     sudo = np.zeros((size,size,size))
     for i in range(size):
@@ -130,7 +148,10 @@ def generate_initial_solution(given):
 
 
 def solve_sudoku(given):
-
+    '''
+    Taking as an input a sudoku in its usual form with 0 denoting
+    empty cases, returns a filled sudoku
+    '''
     sudo = generate_initial_solution(given)
 
     sudo1_old = sudo
@@ -141,25 +162,28 @@ def solve_sudoku(given):
 
     i = 0
     while not check_sudoku(to_comp, given):
-        sudo1 = col_cube(sudo1_old, sudo2_old, sudo3_old, sudo4_old)
-        sudo2 = row_cube(sudo1_old, sudo2_old, sudo3_old, sudo4_old)
-        sudo3 = cube_cube(sudo1_old, sudo2_old, sudo3_old, sudo4_old)
-        sudo4 = given_cube(sudo1_old, sudo2_old, sudo3_old, sudo4_old, given)
-
-        sudoada = diag_proj(sudo1, sudo2, sudo3, sudo4)
+        sudo_diag = (sudo1_old + sudo2_old + sudo3_old + sudo4_old)/4.0
+        sudo1 = column_proj(2*sudo_diag - sudo1_old) + sudo1_old - sudo_diag
+        sudo2 = row_proj(2*sudo_diag - sudo2_old) + sudo2_old - sudo_diag
+        sudo3 = cube_proj(2*sudo_diag - sudo3_old) + sudo3_old - sudo_diag
+        sudo4 = given_proj(2*sudo_diag - sudo4_old,given) + sudo4_old - sudo_diag
 
         sudo1_old = sudo1
         sudo2_old = sudo2
         sudo3_old = sudo3
         sudo4_old = sudo4
 
-        to_comp = represent_cube(sudoada)
+        to_comp = represent_cube(sudo_diag)
         i += 1
 
 
     return to_comp
 
 def sudo_from_text(sudo_txt):
+    '''
+    Convert a sudoku under string form to
+    its usual form (size*size matrix)
+    '''
     lines = sudo_txt.split()
     size = len(lines)
     given = np.zeros((size,size))
@@ -170,6 +194,9 @@ def sudo_from_text(sudo_txt):
     return given
 
 def solve_iterative_projection(sudo_txt):
+    '''
+    Solve a sudoku given under text form
+    '''
     given = sudo_from_text(sudo_txt)
     solution = solve_sudoku(given)
     print solution

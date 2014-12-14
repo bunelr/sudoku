@@ -1,4 +1,4 @@
-from sudoku import Sudoku, load_sudokus_from_file
+from sudoku import Sudoku
 import random
 import math
 

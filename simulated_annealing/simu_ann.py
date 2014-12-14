@@ -3,9 +3,6 @@ import random
 import math
 
 
-sudokus = load_sudokus_from_file('easy50.txt')
-sudo = sudokus[12]
-
 def solve_sudoku(sudoku):
     # Generate initial state
     energy = sudoku.get_cost()
@@ -50,5 +47,6 @@ def should_do_transition(energy, new_energy, temperature):
     else:
         return False
 
-
-solve_sudoku(sudo)
+def solve_simulated_annealing(sudo_txt):
+    sudoku = Sudoku(sudo_txt)
+    solve_sudoku(sudoku)

@@ -1,4 +1,6 @@
 from sudoku import Sudoku
+import sudoku as other_file
+from collections import deque
 import random
 import math
 
@@ -15,6 +17,17 @@ def solve_sudoku(sudoku):
     best_solution = sudoku.sudoku_grid.copy()
 
     temperature = 1
+    # cooling factor
+    alpha = 0.999
+    # reheating factor
+    beta = 0.9
+    # reheating scheduler parameter
+    nb_identique = 1000
+
+    cooling = True
+    last_energies = deque(maxlen=nb_identique)
+    sum_energies = 0
+
     i =0
     while True:
         i = i+1
@@ -31,13 +44,32 @@ def solve_sudoku(sudoku):
                 if energy == 0:
                     break
 
+        if cooling:
+            # Cooling
+            if len(last_energies)==nb_identique:
+                old = last_energies.popleft()
+                sum_energies -= old
+            last_energies.append(energy)
+            sum_energies += energy
+            if sum_energies == energy*nb_identique:
+                cooling = False
+                local_minima_energy = energy
+                last_energies = deque(maxlen=nb_identique)
+                sum_energies = 0
+            temperature = temperature * alpha
+            other_file.ALPHA = max(temperature,1)
+        else:
+            # Reheating
+            if energy==local_minima_energy:
+                temperature = temperature / beta
+            else:
+                cooling = True
         if i % 1000==0:
-            print i, temperature, best_energy
-        if temperature < 0.01:
-            print "No solution found, giving up"
-            return False
+            print i, temperature, energy, best_energy, "Cooling" if cooling else "Reheating"
+            if i> 100000:
+                print "No solution found, giving up"
+                return False
 
-        temperature = temperature * 0.99999
 
     sudoku.show_filled()
     return True

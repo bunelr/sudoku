@@ -3,7 +3,7 @@ import random
 
 SMALL = 3
 SIZE = 9
-ALPHA = 0.9
+ALPHA = 0.7
 
 class Sudoku:
 

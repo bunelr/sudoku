@@ -3,6 +3,7 @@ import random
 
 SMALL = 3
 SIZE = 9
+ALPHA = 0.9
 
 class Sudoku:
 
@@ -67,13 +68,14 @@ class Sudoku:
 
     def get_new_solution(self):
         solution = np.copy(self.sudoku_grid)
-        probabilities = np.exp(self.constraints_violation).cumsum(axis=1)
+        constraints_score = np.exp(self.constraints_violation)
 
-        line = discrete_sample(probabilities[:,-1].cumsum())
+        line_proba = constraints_score.sum(axis=1)
+        line = discrete_sample(line_proba)
 
 
-        col1 = discrete_sample(probabilities[line,:])
-        col2 = discrete_sample(probabilities[line,:])
+        col1 = discrete_sample(constraints_score[line,:])
+        col2 = discrete_sample(constraints_score[line,:])
 
         idx1 = (line, col1)
         idx2 = (line, col2)
@@ -83,9 +85,12 @@ class Sudoku:
         return solution, self.count_constraint_violation(solution)
 
 
-def discrete_sample(cum):
+def discrete_sample(density):
     '''
-    Return an index corresponding to a sample of the distribution defined by the
-    unnormalized distribution function in cum
+    Return an index corresponding to a sample of the distribution
+    defined by the unnormalized discrete distribution
+    Use constant alpha to allow exploration
     '''
-    return cum.searchsorted(cum[-1]*random.random())
+    density = ALPHA * (density/density.sum()) + ((1-ALPHA)/len(density))
+    distribution = density.cumsum()
+    return distribution.searchsorted(random.random())

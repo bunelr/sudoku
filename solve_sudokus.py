@@ -13,6 +13,6 @@ if __name__ == '__main__':
     sudokus_txt = load_sudokus_from_file('easy50.txt')
     for sudoku in sudokus_txt:
         print "Solving by Iterative Projection"
-        solve_iterative_projection(sudoku)
+        solved = solve_iterative_projection(sudoku)
         print "Solving by simulated Annealing"
-        solve_simulated_annealing(sudoku)
+        solved = solve_simulated_annealing(sudoku)

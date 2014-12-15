@@ -4,6 +4,11 @@ import math
 
 
 def solve_sudoku(sudoku):
+    '''
+    Print the solution to a sudoku if it is found
+    and return a boolean indicating whether or not a solution
+    has been found
+    '''
     # Generate initial state
     energy = sudoku.get_cost()
     best_energy = energy
@@ -28,10 +33,14 @@ def solve_sudoku(sudoku):
 
         if i % 1000==0:
             print i, temperature, best_energy
+        if temperature < 0.01:
+            print "No solution found, giving up"
+            return False
 
         temperature = temperature * 0.99999
 
     sudoku.show_filled()
+    return True
 
 
 def should_do_transition(energy, new_energy, temperature):
@@ -45,4 +54,4 @@ def should_do_transition(energy, new_energy, temperature):
 
 def solve_simulated_annealing(sudo_txt):
     sudoku = Sudoku(sudo_txt)
-    solve_sudoku(sudoku)
+    return solve_sudoku(sudoku)

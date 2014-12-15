@@ -152,6 +152,9 @@ def solve_sudoku(given):
     Taking as an input a sudoku in its usual form with 0 denoting
     empty cases, returns a filled sudoku
     '''
+
+    found_solution = True
+
     sudo = generate_initial_solution(given)
 
     sudo1_old = sudo
@@ -175,9 +178,13 @@ def solve_sudoku(given):
 
         to_comp = represent_cube(sudo_diag)
         i += 1
+        if i % 1000 ==0:
+            print "%s iteration done"
+            if i>10000:
+                # Give up after too many operations
+                found_solution=False
 
-
-    return to_comp
+    return found_solution, to_comp
 
 def sudo_from_text(sudo_txt):
     '''
@@ -198,5 +205,9 @@ def solve_iterative_projection(sudo_txt):
     Solve a sudoku given under text form
     '''
     given = sudo_from_text(sudo_txt)
-    solution = solve_sudoku(given)
-    print solution
+    found_solution, solution = solve_sudoku(given)
+    if found_solution:
+        print solution
+    else:
+        print "No solution found, giving up"
+    return found_solution

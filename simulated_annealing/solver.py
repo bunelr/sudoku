@@ -11,29 +11,25 @@ def solve_sudoku(sudoku):
 
     temperature = 1
     i =0
-    try:
-        while True:
-            i = i+1
-            new_solution, (constraints_violation, new_energy) = sudoku.get_new_solution()
+    while True:
+        i = i+1
+        new_solution, (constraints_violation, new_energy) = sudoku.get_new_solution()
 
-            if should_do_transition(energy, new_energy, temperature):
-                energy = new_energy
-                sudoku.sudoku_grid = new_solution
-                sudoku.constraints_violation = constraints_violation
+        if should_do_transition(energy, new_energy, temperature):
+            energy = new_energy
+            sudoku.sudoku_grid = new_solution
+            sudoku.constraints_violation = constraints_violation
 
-                if energy < best_energy:
-                    best_energy = energy
-                    best_solution = new_solution.copy()
+            if energy < best_energy:
+                best_energy = energy
+                best_solution = new_solution.copy()
                 if energy == 0:
                     break
 
-            if i % 1000==0:
-                print i, temperature, best_energy
+        if i % 1000==0:
+            print i, temperature, best_energy
 
-            temperature = temperature * 0.9999
-
-    except KeyboardInterrupt:
-        pass
+        temperature = temperature * 0.99999
 
     sudoku.show_filled()
 

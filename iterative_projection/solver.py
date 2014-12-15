@@ -186,25 +186,10 @@ def solve_sudoku(given):
 
     return found_solution, to_comp
 
-def sudo_from_text(sudo_txt):
-    '''
-    Convert a sudoku under string form to
-    its usual form (size*size matrix)
-    '''
-    lines = sudo_txt.split()
-    size = len(lines)
-    given = np.zeros((size,size))
-    for i, line in enumerate(lines):
-        for j, char in enumerate(line):
-            if char!='0':
-                given[i,j] = int(char)
-    return given
-
-def solve_iterative_projection(sudo_txt):
+def solve_iterative_projection(given):
     '''
     Solve a sudoku given under text form
     '''
-    given = sudo_from_text(sudo_txt)
     found_solution, solution = solve_sudoku(given)
     if found_solution:
         print solution

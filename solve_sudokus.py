@@ -1,5 +1,6 @@
 import time
 import json
+import numpy as np
 
 from simulated_annealing.solver import solve_simulated_annealing
 from iterative_projection.solver import solve_iterative_projection
@@ -9,7 +10,27 @@ def load_sudokus_from_file(path_to_file):
         sudokus = sudoku_file.read()
     sudoku_tab = sudokus.split('========')
 
-    return sudoku_tab
+    sudokus_np = []
+    for sudo_txt in sudoku_tab:
+        sudokus_np.append(sudo_from_text(sudo_txt))
+
+    return sudokus_np
+
+
+def sudo_from_text(sudo_txt):
+    '''
+    Convert a sudoku under string form to
+    its usual form (size*size matrix)
+    '''
+    lines = sudo_txt.split()
+    size = len(lines)
+    given = np.zeros((size,size))
+    for i, line in enumerate(lines):
+        for j, char in enumerate(line):
+            if char!='0':
+                given[i,j] = int(char)
+    return given
+
 
 
 def main():

@@ -84,6 +84,6 @@ def should_do_transition(energy, new_energy, temperature):
     else:
         return False
 
-def solve_simulated_annealing(sudo_txt):
-    sudoku = Sudoku(sudo_txt)
+def solve_simulated_annealing(given):
+    sudoku = Sudoku(given)
     return solve_sudoku(sudoku)

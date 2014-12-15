@@ -6,12 +6,10 @@ ALPHA = 0.7
 class Sudoku:
 
     def __init__(self, sudoku_grid):
-        sudoku_grid = sudoku
-
         empty_cases = []
         available_for_line = []
 
-        size = sudoku.shape[0]
+        size = sudoku_grid.shape[0]
         # Read the sudoku
         for i in range(size):
             line_possibility = set(range(1,size+1))

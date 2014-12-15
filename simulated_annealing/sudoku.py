@@ -91,6 +91,8 @@ def discrete_sample(density):
     defined by the unnormalized discrete distribution
     Use constant alpha to allow exploration
     '''
-    density = ALPHA * (density/density.sum()) + ((1-ALPHA)/len(density))
+    possible = (density!=0)
+    density = ALPHA * (density/density.sum()) + ((1-ALPHA)*possible/possible.sum())
+
     distribution = density.cumsum()
     return distribution.searchsorted(random.random())

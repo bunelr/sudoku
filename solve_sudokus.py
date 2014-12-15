@@ -45,6 +45,7 @@ def main():
     timing_pr = dict()
 
     for index, sudoku in enumerate(sudokus):
+        print "\n\n"
         print sudoku
 
         print "Solving by Iterative Projection"

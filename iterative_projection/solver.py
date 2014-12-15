@@ -179,7 +179,7 @@ def solve_sudoku(given):
         to_comp = represent_cube(sudo_diag)
         i += 1
         if i % 1000 ==0:
-            print "%s iteration done"
+            print "%s iteration done" % i
             if i>10000:
                 # Give up after too many operations
                 found_solution=False

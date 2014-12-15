@@ -1,38 +1,36 @@
 import numpy as np
 import random
 
-SMALL = 3
-SIZE = 9
 ALPHA = 0.7
 
 class Sudoku:
 
-    def __init__(self, sudoku_txt):
-        sudoku_grid = np.zeros((SIZE,SIZE))
-        empty_cases = []
-        lines = sudoku_txt.split()
+    def __init__(self, sudoku_grid):
+        sudoku_grid = sudoku
 
+        empty_cases = []
         available_for_line = []
 
+        size = sudoku.shape[0]
         # Read the sudoku
-        for i, line in enumerate(lines):
-            line_possibility = set(range(1,SIZE+1))
-            for j, char in enumerate(line):
-                if char!='0':
-                    line_possibility.discard(int(char))
-                    sudoku_grid[i,j]  = int(char)
+        for i in range(size):
+            line_possibility = set(range(1,size+1))
+            for j in range(size):
+                if sudoku_grid[i,j]!=0:
+                    line_possibility.discard(sudoku_grid[i,j])
                 else:
                     empty_cases.append((i,j))
             available_for_line.append(line_possibility)
 
         # Parameters of the problem
-        self.size = SIZE
+        self.size = size
+        self.small_size = int(np.sqrt(size))
         self.sudoku_grid_empty = np.copy(sudoku_grid)
         self.empty_cases = empty_cases
 
         # Generate initial solution
         for i,line in enumerate(available_for_line):
-            for j in range(SIZE):
+            for j in range(size):
                 if sudoku_grid[i,j] == 0:
                     sudoku_grid[i,j] = line.pop()
             assert len(line)==0
@@ -53,13 +51,14 @@ class Sudoku:
     def count_constraint_violation(self, solution):
         constraints_violation =-np.inf * np.ones((self.size,self.size))
 
+        small = self.small_size
         for i, j  in self.empty_cases:
-            a = SMALL* (i / SMALL)
-            b = SMALL* (j / SMALL)
+            a = small* (i / small)
+            b = small* (j / small)
             value = solution[i,j]
             constraints_violation[i,j] = np.sum(solution[i,:]==value) + \
                                        np.sum(solution[:,j]==value) + \
-                                       np.sum(solution[a:a+SMALL,b:b+SMALL]==value) - 3
+                                       np.sum(solution[a:a+small,b:b+small]==value) - 3
             # The -3 is there because there should be a value on each constraints
             # -> the one we're considering
         cost = np.ma.masked_invalid(constraints_violation).sum()

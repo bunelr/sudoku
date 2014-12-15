@@ -61,12 +61,12 @@ def solve_sudoku(sudoku):
         else:
             # Reheating
             if energy==local_minima_energy:
-                temperature = temperature / beta
+                temperature = min(temperature / beta,100)
             else:
                 cooling = True
         if i % 1000==0:
             print i, temperature, energy, best_energy, "Cooling" if cooling else "Reheating"
-            if i> 100000:
+            if i> 500000:
                 print "No solution found, giving up"
                 return False
 

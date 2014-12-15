@@ -8,7 +8,7 @@ from iterative_projection.solver import solve_iterative_projection
 def load_sudokus_from_file(path_to_file):
     with open(path_to_file, 'r') as sudoku_file:
         sudokus = sudoku_file.read()
-    sudoku_tab = sudokus.split('========')
+    sudoku_tab = sudokus.splitlines()
 
     sudokus_np = []
     for sudo_txt in sudoku_tab:
@@ -22,26 +22,30 @@ def sudo_from_text(sudo_txt):
     Convert a sudoku under string form to
     its usual form (size*size matrix)
     '''
-    lines = sudo_txt.split()
-    size = len(lines)
+    values = sudo_txt.split('.')
+    size_2 = len(values)
+    size = int(np.sqrt(size_2))
+
     given = np.zeros((size,size))
-    for i, line in enumerate(lines):
-        for j, char in enumerate(line):
-            if char!='0':
-                given[i,j] = int(char)
+    for idx, val in enumerate(values):
+        i = idx / size
+        j = idx - (i*size)
+        given[i,j] = int(val)
+    assert (idx+1) == size*size
     return given
 
 
 
 def main():
-    sudokus_txt = load_sudokus_from_file('easy50.txt')
+    sudokus = load_sudokus_from_file('easy')
 
     solved_sa = dict()
     solved_pr = dict()
     timing_sa = dict()
     timing_pr = dict()
 
-    for index, sudoku in enumerate(sudokus_txt):
+    for index, sudoku in enumerate(sudokus):
+        print sudoku
 
         print "Solving by Iterative Projection"
         start = time.clock()

@@ -180,9 +180,10 @@ def solve_sudoku(given):
         i += 1
         if i % 1000 ==0:
             print "%s iteration done" % i
-            if i>10000:
+            if i>50000:
                 # Give up after too many operations
                 found_solution=False
+                break
 
     return found_solution, to_comp
 
